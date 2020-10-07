@@ -1,6 +1,9 @@
+import daft
 import jax.numpy as np
 
+
 Model = object  # base class
+
 
 # fmt: off
 # flake8: noqa
@@ -13,9 +16,72 @@ class NaiveBayes(Model):
         self.num_categories
         self.rng_key = jax.random.PRNGKey(0)
 
+    def __repr__(self):
+        description = """The naive Bayes model is equivalent to a mixture of Gaussians
+        with a diagonal covariance matrix."""
+        return description
+
     def __repr_latex__(self):
         """LateX representation of the model for Jupyter notebooks."""
+        representation = """
+        \\begin{align*}
+
+        \\mu_{jc} & \\sim Normal(0, 100) \\
+        \\sigma_{jc} &\\sim HalfNormal(100)\\
+
+        x_{jc} & \\sim Normal(\\mu_{jc}, \\sigma_{jc}) \\
+
+
+        \\pi & \\sim Dirichlet(\\alpha)\\
+        P(y=c|x_i) &= Cat(\\pi_1, \\dots, \\pi_C)
+
+
+        \\end{align*}
+        """
         pass
+
+    def graph_model(self):
+        """This is just an example, not the actual model.
+        """
+        rc("font", family="serif", size=12)
+        rc("text", usetex=True)
+
+
+        # Colors.
+        p_color = {"ec": "#46a546"}
+        s_color = {"ec": "#f89406"}
+
+        pgm = daft.PGM()
+
+        n = daft.Node("phi", r"$\phi$", 1, 3, plot_params=s_color)
+        n.va = "baseline"
+        pgm.add_node(n)
+        pgm.add_node("speckle_coeff", r"$z_i$", 2, 3, plot_params=s_color)
+        pgm.add_node("speckle_img", r"$x_i$", 2, 2, plot_params=s_color)
+
+        pgm.add_node("spec", r"$s$", 4, 3, plot_params=p_color)
+        pgm.add_node("shape", r"$g$", 4, 2, plot_params=p_color)
+        pgm.add_node("planet_pos", r"$\mu_i$", 3, 3, plot_params=p_color)
+        pgm.add_node("planet_img", r"$p_i$", 3, 2, plot_params=p_color)
+
+        pgm.add_node("pixels", r"$y_i ^j$", 2.5, 1, observed=True)
+
+        # Edges.
+        pgm.add_edge("phi", "speckle_coeff")
+        pgm.add_edge("speckle_coeff", "speckle_img")
+        pgm.add_edge("speckle_img", "pixels")
+
+        pgm.add_edge("spec", "planet_img")
+        pgm.add_edge("shape", "planet_img")
+        pgm.add_edge("planet_pos", "planet_img")
+        pgm.add_edge("planet_img", "pixels")
+
+        # And a plate.
+        pgm.add_plate([1.5, 0.2, 2, 3.2], label=r"exposure $i$", shift=-0.1)
+        pgm.add_plate([2, 0.5, 1, 1], label=r"pixel $j$", shift=-0.1)
+
+        # Render and save.
+        pgm.render()
 
     def prior_predict(self, X):
         pass
