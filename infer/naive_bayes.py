@@ -1,5 +1,9 @@
 import daft
+import jax
 import jax.numpy as np
+import mcx
+from matplotlib import rc
+from IPython.display import display, Math
 
 
 Model = object  # base class
@@ -13,7 +17,7 @@ class NaiveBayes(Model):
     """
 
     def __init__(self, num_categories):
-        self.num_categories
+        self.num_categories = num_categories
         self.rng_key = jax.random.PRNGKey(0)
 
     def __repr__(self):
@@ -21,31 +25,24 @@ class NaiveBayes(Model):
         with a diagonal covariance matrix."""
         return description
 
-    def __repr_latex__(self):
+    def display_math(self):
         """LateX representation of the model for Jupyter notebooks."""
-        representation = """
-        \\begin{align*}
-
-        \\mu_{jc} & \\sim Normal(0, 100) \\
-        \\sigma_{jc} &\\sim HalfNormal(100)\\
-
-        x_{jc} & \\sim Normal(\\mu_{jc}, \\sigma_{jc}) \\
-
-
-        \\pi & \\sim Dirichlet(\\alpha)\\
-        P(y=c|x_i) &= Cat(\\pi_1, \\dots, \\pi_C)
-
-
-        \\end{align*}
+        representation = r"""
+        \begin{align}
+        \mu_{jc} & \sim \text{Normal}(0, 100) \\
+        \sigma_{jc} &\sim \text{HalfNormal}(100)\\
+        x_{jc} & \sim \text{Normal}(\mu_{jc}, \sigma_{jc}) \\
+        \pi & \sim \text{Dirichlet}(\alpha)\\
+        P(y=c|x_i) &= \text{Cat}(\pi_1, \dots, \pi_C)
+        \end{align}
         """
-        pass
-
-    def graph_model(self):
+        return display(Math(representation))
+    
+    def display_graph(self):
         """This is just an example, not the actual model.
         """
         rc("font", family="serif", size=12)
         rc("text", usetex=True)
-
 
         # Colors.
         p_color = {"ec": "#46a546"}
@@ -81,7 +78,7 @@ class NaiveBayes(Model):
         pgm.add_plate([2, 0.5, 1, 1], label=r"pixel $j$", shift=-0.1)
 
         # Render and save.
-        pgm.render()
+        pgm.render(dpi=120)
 
     def prior_predict(self, X):
         pass
@@ -96,7 +93,7 @@ class NaiveBayes(Model):
         """While it impossible to provide a universal fitting mechanism, some
         are certainly better than others.
         """
-        model = self.model
+        print(self.model(10))
 
         _, self.rng_key = jax.random.split(self.rng_key)
         sampler = mcx.sampler(
@@ -112,7 +109,7 @@ class NaiveBayes(Model):
 
         return trace
 
-
+    @property
     def model(self):
         """Naive Bayes classifier.
 
@@ -173,7 +170,7 @@ class NaiveBayes(Model):
             alpha = np.ones(num_categories)
             pi <~ dist.Dirichlet(alpha, shape=num_categories)
             mu <~ dist.Normal(mu=0, sd=100, shape=(num_categories, num_predictors))
-            sigma <~ dist.HalfNormal(100, shape=(num_categories, num_predictors))
+            sigma <~ dist.Exponential(100, shape=(num_categories, num_predictors))
 
             # Assign classes to data points
             z <~ dist.Categorical(pi, shape=num_training_samples)
