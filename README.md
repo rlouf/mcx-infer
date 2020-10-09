@@ -27,6 +27,9 @@ We need, among other things:
 - display representation of graphical model using
   [daft](https://docs.daft-pgm.org/en/latest/);
 - Provide point estimate using loss functions;
+- loo validation;
+- Model comparison;
+- [Population predictive checks](https://arxiv.org/abs/1908.00882);
 
 Murphy's *Machine Learning* is a good first repo of models that could be
 implemented. Notebooks need to be written as ais it was pedagogical support for
