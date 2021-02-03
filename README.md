@@ -46,8 +46,11 @@ Once we have all this we have a true Machine Learning library!
 
 # What models?
 
-Murphy's *Machine Learning* is a good first repo of models that could be
-implemented. Notebooks need to be written *for each model* as if it were a pedagogical support for
+Murphy's [*Machine Learning*](https://probml.github.io/pml-book/book1.html) is a good first repo
+of models that could be implemented.
+
+
+Notebooks need to be written *for each model* as if it were a pedagogical support for
 a class on the topic. 
 
 # Note for skeptics  
