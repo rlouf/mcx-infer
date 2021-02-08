@@ -6,6 +6,26 @@ I am currently using this library as a way to test-drive mcx, fix bugs
 and get a feel for what is currently missing. Nevertheless, I really care about
 this project and will make it a priority in the near future.
 
+Here's how "fitting" a Naive Bayes model to the Iris dataset would look like in `infer`:
+
+```python
+from sklearn import datasets
+import infer
+
+iris = datasets.load_iris()
+X = iris.data
+y = iris.target
+
+model = infer.NaiveBayes()
+
+model  # In a notebook, shows the mathematical representation of the model
+model.graph  # In a notebook, shows the graphical representation of the model
+
+model.prior_predict(X)
+model.fit(X, z)
+model.predict(X)
+```
+
 # Goal
 
 Pack generative models in
